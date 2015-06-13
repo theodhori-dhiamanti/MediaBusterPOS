@@ -24,7 +24,22 @@ namespace MediaBusterPOS
 
         public override bool Authenticate(string u_user, string u_pass)
         {
-            throw new NotImplementedException();
+           
         }
+
+        private string credsToSha512(string Credentials)
+        {
+             System.Security.Cryptography.SHA512CryptoServiceProvider Encrypt = new System.Security.Cryptography.SHA512CryptoServiceProvider();
+            byte[] ByteString = System.Text.Encoding.ASCII.GetBytes(Credentials);
+            ByteString = Encrypt.ComputeHash(ByteString);
+            string Result = null;
+            foreach (byte bt in ByteString)
+            {
+                Result += bt.ToString("x2"); 
+            }
+            return Result.ToUpper();
+        
+        }
+        
     }
 }

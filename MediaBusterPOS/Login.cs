@@ -27,7 +27,7 @@ namespace MediaBusterPOS
 
         private void loginButton_Click(object sender, EventArgs e)
         {
-            //private hello = new System.Security.Cryptography.SHA512CryptoServiceProvider;
+             
         }
     }
 }
