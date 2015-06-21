@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MediaBusterPOS;
 
 namespace MediaBusterPOS
 {
-    public abstract class Person
+    [Serializable]
+    public abstract class Person : BusinessBase
     {
         #region "Private Data"
+        
         private string m_SSNumber;
         private string m_FirstName;
         private string m_LastName;
@@ -20,37 +23,91 @@ namespace MediaBusterPOS
         #endregion
 
         #region "Public Properties"
+        
         public string SSNumber
         {
             get {return m_SSNumber;}
-            set { m_SSNumber = value; }
+            set {
+                if (value.Trim().Length == 0)
+                {
+                    throw new NotSupportedException("Business Rule: SS Number cannot be blank");
+                }
+                if (this.IsNew)
+                {
+                    throw new NotSupportedException("Business Rule: SS Number can only be written once");
+                }
+                if (value.Trim().Length != 11)
+                {
+                    throw new NotSupportedException("Business Rule: SS Number needs to be 11 numbers in length");
+                }
+                m_SSNumber = value;
+                base.MarkDirty();
+            }
         }
+
         public string FirstName
         {
             get { return m_FirstName;}
-            set { m_FirstName = value; }
+            set 
+            {
+                if (value.Trim().Length == 0)
+                {
+                    throw new NotSupportedException("Business Rule: First Name can't be blank");
+                }
+                if (value.Length > 25)
+                {
+                    throw new NotSupportedException("Business Rule: First Name is too long");
+                }
+                m_FirstName = value;
+                base.MarkDirty();
+            }
         }
+
         public string LastName
         {
             get { return m_LastName; }
-            set { m_LastName = value; }
+            set 
+            {
+                if (value.Trim().Length == 0)
+                {
+                    throw new NotSupportedException("Business Rule: LAst Name can't be blank");
+                }
+                if (value.Length > 25)
+                {
+                    throw new NotSupportedException("Business Rule: Last Name is too long");
+                }
+                 m_LastName = value; 
+                base.MarkDirty();
+               
+            }
         }
+
         public virtual DateTime BirthDate
         {
             get { return m_BirthDay; }
             set {
                 m_BirthDay = value;
                 m_Age = (DateTime.Today.Year - m_BirthDay.Year);
+                base.MarkDirty();
             }
         }
+
         public int Age
         {
             get { return m_Age; }
         }
+
         public string Address
         {
             get { return m_Address; }
-            set { m_Address = value; }
+            set 
+            {
+                if (value.Trim().Length == 0)
+                {
+                    throw new NotSupportedException("Business Rule: Address can't be blank");
+                }
+                m_Address = value; 
+            }
         }
         public string PhoneNumber
         {
@@ -61,6 +118,7 @@ namespace MediaBusterPOS
         public static int Count
         {
             get { return m_Count; }
+            set { m_Count = value; }
         }
         #endregion
 
@@ -79,9 +137,9 @@ namespace MediaBusterPOS
             
         }
 
-        protected Person(string s_Number, string F_Name, string L_Name, DateTime B_Date, string A_Address, string P_Number )
+        protected Person(string S_Number, string F_Name, string L_Name, DateTime B_Date, string A_Address, string P_Number )
         {
-            this.SSNumber = s_Number;
+            this.SSNumber = S_Number;
             this.FirstName = F_Name;
             this.LastName = L_Name;
             this.BirthDate = B_Date;
