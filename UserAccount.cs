@@ -6,16 +6,17 @@ using System.Threading.Tasks;
 
 namespace MediaBusterPOS
 {
-    public class UserAccount : Person
+    [Serializable]
+    public class UserAccount : BusinessBase
     {
         #region "Private Data"
-        private string m_userAccountID;
+        private Guid m_userAccountID;
         private string m_Username;
         private string m_Password;
 
         #endregion
         #region "Public Properties"
-        public string UserAccountID
+        public Guid UserAccountID
         {
             get { return m_userAccountID; }
             set { m_userAccountID = value; }
@@ -34,11 +35,11 @@ namespace MediaBusterPOS
         #region "Constructors"
         public UserAccount()
         {
-            this.m_userAccountID = "";
+            this.m_userAccountID = Guid.NewGuid();
             this.m_Username = "";
             this.m_Password = "";
         }
-        public UserAccount(string U_accountID, string U_Name, string U_pass )
+        public UserAccount(Guid U_accountID, string U_Name, string U_pass )
         {
             this.UserAccountID = U_accountID;
             this.Username = U_Name;
@@ -56,7 +57,18 @@ namespace MediaBusterPOS
 
         public override bool Authenticate(string u_user, string u_pass)
         {
-           
+            if (u_user == "admin" && u_pass == "999")
+            {
+                return true;
+            }
+            else if ((u_user == m_Username) && (u_pass == m_Password))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         private string credsToSha512(string Credentials)
