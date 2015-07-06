@@ -1,0 +1,4 @@
+C:\Users\Paparazzi\Documents\Visual Studio 2010\Projects\MediaBusterPOS\MediaBusterPOS\obj\x86\Debug\BusinessObjects.csprojResolveAssemblyReference.cache
+C:\Users\Paparazzi\Documents\Visual Studio 2010\Projects\MediaBusterPOS\MediaBusterPOS\obj\x86\Debug\MediaBusterPOS.Login.resources
+C:\Users\Paparazzi\Documents\Visual Studio 2010\Projects\MediaBusterPOS\MediaBusterPOS\obj\x86\Debug\MediaBusterPOS.Properties.Resources.resources
+C:\Users\Paparazzi\Documents\Visual Studio 2010\Projects\MediaBusterPOS\MediaBusterPOS\obj\x86\Debug\BusinessObjects.csproj.GenerateResource.Cache

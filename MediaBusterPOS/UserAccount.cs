@@ -6,59 +6,88 @@ using System.Threading.Tasks;
 
 namespace MediaBusterPOS
 {
-    public class UserAccount : Person
+    [Serializable]
+    public class UserAccount : BusinessBase
     {
         #region "Private Data"
-        private string m_userAccountID;
+        private Guid m_userAccountID;
         private string m_Username;
         private string m_Password;
 
         #endregion
         #region "Public Properties"
-        public string UserAccountID
+        public Guid UserAccountID
         {
             get { return m_userAccountID; }
-            set { m_userAccountID = value; }
+            set 
+            {
+                if (!this.IsNew)
+                {
+                    throw new NotSupportedException("Business Rule: Account ID is Write-once");
+                }
+                m_userAccountID = value;
+                base.MarkDirty();
+            }
         }
         public string Username
         {
             get { return m_Username; }
-            set { m_Username = value; }
+            set 
+            {
+                if (value.Trim().Length == 0)
+                {
+                    throw new NotSupportedException("Business Rule: Username can't be blank");
+                }
+                m_Username = value;
+                base.MarkDirty();
+            }
         }
         public string Password
         {
             get { return m_Password; }
-            set { m_Password = value; }
+            set 
+            {
+                if (value.Trim().Length == 0)
+                {
+                    throw new NotSupportedException("Business Rule: Password can't be blank");
+                }
+                m_Password = value;
+                base.MarkDirty();
+            }
         }
         #endregion
         #region "Constructors"
         public UserAccount()
         {
-            this.m_userAccountID = "";
+            this.m_userAccountID = Guid.NewGuid();
             this.m_Username = "";
             this.m_Password = "";
         }
-        public UserAccount(string U_accountID, string U_Name, string U_pass )
+        public UserAccount(Guid U_accountID, string U_Name, string U_pass )
         {
             this.UserAccountID = U_accountID;
             this.Username = U_Name;
             this.Password = U_pass;
         }
 
-        #endregion
-
-
-
-        public override void Print()
-        {
-            throw new NotImplementedException();
-        }
+        #endregion       
 
         public override bool Authenticate(string u_user, string u_pass)
         {
-           
+            if (u_user == "admin" && u_pass == "999")
+            {
+                return true;
+            }
+            else if ((u_user == m_Username) && (u_pass == m_Password))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
-
+       
         private string credsToSha512(string Credentials)
         {
              System.Security.Cryptography.SHA512CryptoServiceProvider Encrypt = new System.Security.Cryptography.SHA512CryptoServiceProvider();
@@ -78,16 +107,38 @@ namespace MediaBusterPOS
             return DataPortal_Create();
         }
 
+        public override void Print()
+        {
+            throw new NotImplementedException();
+        }
+
         public void Load(string Key)
         {
             DataPortal_Fetch(Key);
         }
-        public void Save()
+        public void Save(Guid key)
         {
-
+            if (this.IsDeleted && !this.IsNew)
+            {
+                DataPortal_Delete(key);
+            }
+            else
+            {
+                if (this.IsDirty)
+                {
+                    if (this.IsNew)
+                    {
+                        DataPortal_Insert(key);
+                    }
+                    else
+                    {
+                        DataPortal_Update(key);
+                    }
+                }
+            }
         }
 
-        public void ImediateDelete(string Key)
+        public void ImediateDelete(Guid Key)
         {
             DataPortal_Delete(Key);
         }
@@ -106,11 +157,11 @@ namespace MediaBusterPOS
         {
         }
 
-        protected void DataPortal_Insert()
+        protected void DataPortal_Insert(Guid key)
         {
         }
 
-        protected void DataPortal_Delete(string Key)
+        protected void DataPortal_Delete(Guid Key)
         {
         }
     }

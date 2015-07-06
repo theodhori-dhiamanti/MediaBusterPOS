@@ -7,16 +7,30 @@ using System.Diagnostics;
 using MediaBusterPOS;
 using System.Linq;
 using System.Text;
+using System.Data.SqlClient;
 
 namespace MediaBusterPOS
 {
-    class EmployeeList : DictionaryBase
+    [Serializable]
+    public class EmployeeList : BusinessCollectionBase
     {
+        private const string strConn = "Data Source=.\\SQLEXPRESS;Initial Catalog=MediaBuster.mdf;Integrated Security=True;";
         public bool AdminBool = false;
        
         public new int Count
         {
-            get { return base.Dictionary.Count; }
+            get
+            {
+                try
+                {
+                    return base.Dictionary.Count;
+                }
+                catch (Exception objE)
+                {
+                    
+                    throw new System.Exception("Count Property Error: " + objE.Message);
+                }
+            }
         }
 
         public Employee this[Employee key]
@@ -77,11 +91,12 @@ namespace MediaBusterPOS
             }
         }
 
-        public void Add(string SSNumber, string f_name, string l_Name, DateTime b_date, string a_ddress, string p_number, string j_obTitle, string A_ccountID, string U_sername, string P_assword)
+        public void Add(string SSNumber, string f_name, string l_Name, DateTime b_date, string a_ddress, string p_number, string j_obTitle, Guid A_ccountID, string U_sername, string P_assword)
         {
             try
             {
                 Employee AddTempEmployee = new Employee();
+
                 AddTempEmployee.SSNumber = SSNumber;
                 AddTempEmployee.FirstName = f_name;
                 AddTempEmployee.LastName = l_Name;
@@ -89,9 +104,10 @@ namespace MediaBusterPOS
                 AddTempEmployee.Address = a_ddress;
                 AddTempEmployee.PhoneNumber = p_number;
                 AddTempEmployee.JobTitle = j_obTitle;
-                AddTempEmployee.UserAccount.Password = P_assword;
-                AddTempEmployee.UserAccount.UserAccountID = A_ccountID;
-                AddTempEmployee.UserAccount.Username = U_sername;
+                AddTempEmployee.Child_UserAccount.Password = P_assword;
+                AddTempEmployee.Child_UserAccount.UserAccountID = A_ccountID;
+                AddTempEmployee.Child_UserAccount.Username = U_sername;
+
                 base.Dictionary.Add(AddTempEmployee.SSNumber, AddTempEmployee);
             }
 
@@ -115,7 +131,7 @@ namespace MediaBusterPOS
         {
             try
             {
-                Employee objEditItem;
+                Employee objEditItem = default(Employee);
                 objEditItem = ((Employee)(base.Dictionary[key]));
                 if (objEditItem == null)
                 {
@@ -143,11 +159,11 @@ namespace MediaBusterPOS
             
         }
 
-        public bool Edit(string SSNum, string f_name, string l_name, DateTime b_date, string a_ddress, string p_number, string j_obTitle, string A_ccountID, string U_sername, string P_assword)
+        public bool Edit(string SSNum, string f_name, string l_name, DateTime b_date, string a_ddress, string p_number, string j_obTitle, Guid A_ccountID, string U_sername, string P_assword)
         {
             try
             {
-                Employee objEditItem;
+                Employee objEditItem = default(Employee);
                 objEditItem = ((Employee)(base.Dictionary[SSNum]));
                 if (objEditItem == null)
                 {
@@ -161,12 +177,12 @@ namespace MediaBusterPOS
                     objEditItem.Address = a_ddress;
                     objEditItem.PhoneNumber = p_number;
                     objEditItem.JobTitle = j_obTitle;
-                    objEditItem.UserAccount.UserAccountID = A_ccountID;
-                    objEditItem.UserAccount.Username = U_sername;
-                    objEditItem.UserAccount.Password = P_assword;
+                    objEditItem.Child_UserAccount.UserAccountID = A_ccountID;
+                    objEditItem.Child_UserAccount.Username = U_sername;
+                    objEditItem.Child_UserAccount.Password = P_assword;
                     return true;
                 }
-                return false;  //Why
+                // return false;  //Why
             }
             catch (ArgumentNullException N)
             {
@@ -212,8 +228,8 @@ namespace MediaBusterPOS
         {
             try
             {
-                Employee objPrint;
-                objPrint = ((Employee)(base.Dictionary[key]));
+                Employee objPrint = default(Employee);
+                objPrint = (Employee)base.Dictionary[key];
                 if (objPrint == null)
                 {
                     return false;
@@ -240,7 +256,7 @@ namespace MediaBusterPOS
                 foreach (DictionaryEntry objdictionaryEntry_loop in base.Dictionary)
                 {
                     objdictionaryEntry = objdictionaryEntry_loop;
-                    objPrintItem = ((Employee)(objdictionaryEntry.Value));
+                    objPrintItem = (Employee)objdictionaryEntry.Value;
                     objPrintItem.Print();
                 }
             }
@@ -250,6 +266,7 @@ namespace MediaBusterPOS
                 throw new System.Exception("Print All Method Error: " + ex.Message);
             }
         }
+
         public new void Clear()
         {
             try
@@ -258,17 +275,17 @@ namespace MediaBusterPOS
             }
             catch (Exception ex)
             {
-
                 throw new System.Exception("Unexpected Error clearing list: " + ex.Message);
             }
         }
+
         public bool Authenticate(string strUser, string strPass)
         {
             try
             {
                 Load();
                 DictionaryEntry dictEntry = default(DictionaryEntry);
-                Employee objEmployee = default(Employee);
+                Employee objEmployee = new Employee();
                 if ((strUser == "admin") && (strPass == "999"))
                 {
                     AdminBool = true;
@@ -298,24 +315,135 @@ namespace MediaBusterPOS
             }
         }
 
+        #region "Public Data Access Methods"
+        public static EmployeeList Create()
+        {
+            return DataPortal_Create();
+        }
+                
         public void Load()
         {
-            try
+            DataPortal_Fetch();
+            //try
+            //{
+            //    Employee objEmployee = default(Employee);
+            //    //Get Employee data from file for now
+            //    if (!File.Exists("EmployeeData.txt"))
+            //    {
+            //        StreamWriter objFile = new StreamWriter("EmployeeData.txt", true);
+            //        objFile.Close();
+            //    }
+            //    StreamReader objDataFile = new StreamReader("EmployeeData.txt");
+            //    while (objDataFile.Peek() > -1)
+            //    {
+
+            //    }
+            //}
+            //catch (Exception)
+            //{
+
+            //    throw;
+            //}
+
+        }
+
+        public void Save()
+        {
+            if (IsDirty)
             {
-                Employee objEmployee = default(Employee);
-                //Get Employee data from file for now
-                if (!File.Exists("EmployeeData.txt"))
-                {
-                    StreamWriter objFile = new StreamWriter("EmployeeData.txt", true);
-                    objFile.Close();
-                }
-                StreamReader objDataFile = new StreamReader("EmployeeData.txt");
-            }
-            catch (Exception)
-            {
-                
-                throw;
+                DataPortal_Save();
             }
         }
+        public void ImediateDelete(Guid key)
+        {
+            DataPortal_Delete(key);
+        }
+        protected void DataPortal_Save()
+        {
+        }
+
+        protected void DataPortal_Delete(Guid key)
+        {
+        }
+
+        public override bool DeferredDelete(string key)
+        {
+            DictionaryEntry objDEntry = default(DictionaryEntry);
+            Employee objItem = default(Employee);
+            foreach (DictionaryEntry objDEntryLoop in base.Dictionary)
+            {
+                objDEntry = objDEntryLoop;
+                objItem = (Employee)objDEntry.Value;
+                if (objItem.SSNumber == key)
+                {
+                    if (!objItem.IsNew)
+                    {
+                        objItem.DeferredDelete();
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+            return false;
+        }
+
+        protected static EmployeeList DataPortal_Create()
+        {
+            return null; //for now
+        }
+
+        protected void DataPortal_Fetch()
+        {
+            SqlConnection objConn = new SqlConnection(strConn);
+            try
+            {
+                objConn.Open();
+                string strSQL = "usp_Employee_GetID";
+                SqlCommand objCmd = new SqlCommand(strSQL, objConn);
+                objCmd.CommandType = CommandType.StoredProcedure;
+                SqlDataReader objDR = objCmd.ExecuteReader();
+                if (objDR.HasRows)
+                {
+                    while (objDR.Read())
+                    {
+                        Employee objEmployee = new Employee();
+                        string key = objDR.GetString(0);
+                        objEmployee.Load(key);
+                        this.Add(objEmployee.SSNumber, objEmployee);  //Change ssnumber to GUID ID
+                        objEmployee = null;
+                    }
+                }
+                else
+                {
+                    throw new System.ApplicationException("Load Error! Record Not Found");
+                }
+                objDR.Close();
+                objConn.Dispose();
+                objConn = null;
+            }
+            catch (NotSupportedException E)
+            {
+
+                throw new NotSupportedException(E.Message);
+            }
+            catch (ApplicationException A)
+            {
+                throw new ApplicationException(A.Message);
+            }
+            catch (Exception X)
+            {
+                throw new Exception("Load Error: " + X.Message);
+            }
+            finally
+            {
+                objConn.Close();
+                objConn.Dispose();
+                objConn = null;
+            }
+        }
+        #endregion
     }
 }

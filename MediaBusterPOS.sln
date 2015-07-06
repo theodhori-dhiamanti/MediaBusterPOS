@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaBusterPOS", "MediaBusterPOS\MediaBusterPOS.csproj", "{89355674-79DD-4556-B893-6647C677BF23}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessObjects", "MediaBusterPOS\BusinessObjects.csproj", "{89355674-79DD-4556-B893-6647C677BF23}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
